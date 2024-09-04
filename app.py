@@ -1,9 +1,10 @@
 import streamlit as st
 import requests
+from datetime import datetime
 
 # Función para obtener las principales variables
 def obtener_principales_variables():
-    url = "https://api.bcra.gob.ar/estadisticas/v1/principalesvariables"
+    url = "https://api.bcra.gob.ar/estadisticas/v2.0/PrincipalesVariables"
     headers = {"Accept-Language": "es-AR"}
     response = requests.get(url, headers=headers, verify=False)
     if response.status_code == 200:
@@ -13,7 +14,7 @@ def obtener_principales_variables():
 
 # Función para obtener los datos de una variable específica
 def obtener_datos_variable(id_variable, desde, hasta):
-    url = f"https://api.bcra.gob.ar/estadisticas/v1/datosvariable/{id_variable}/{desde}/{hasta}"
+    url = f"https://api.bcra.gob.ar/estadisticas/v2.0/DatosVariable/{id_variable}/{desde}/{hasta}"
     headers = {"Accept-Language": "es-AR"}
     response = requests.get(url, headers=headers, verify=False)
     if response.status_code == 200:
@@ -34,8 +35,13 @@ def main():
         id_variable = int(variable_seleccionada.split(" - ")[0])
 
         # Solicitar las fechas de inicio y fin
-        desde = st.date_input("Desde:")
-        hasta = st.date_input("Hasta:")
+        desde = st.date_input("Desde:", value=datetime(2024, 8, 8))
+        hasta = st.date_input("Hasta:", value=datetime.today())
+
+          # Validar fechas
+        if desde > hasta:
+            st.error("La fecha de inicio no puede ser posterior a la fecha de fin.")
+            return
 
         # Obtener los datos de la variable seleccionada y mostrarlos
         datos = obtener_datos_variable(id_variable, desde, hasta)
